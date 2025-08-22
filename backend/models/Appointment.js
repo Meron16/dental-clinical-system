@@ -38,8 +38,13 @@ const AppointmentSchema = new mongoose.Schema(
       type: String,
     },
     followUp: {
-      required: Boolean,
-      date: Date,
+      type: new mongoose.Schema(
+        {
+          required: { type: Boolean, default: false },
+          date: { type: Date },
+        },
+        { _id: false },
+      ),
     },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,

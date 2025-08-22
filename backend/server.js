@@ -4,8 +4,9 @@ const cors = require("cors")
 const dotenv = require("dotenv")
 const path = require("path")
 
-// Load environment variables
+// Load environment variables (root and backend/.env)
 dotenv.config()
+dotenv.config({ path: path.join(__dirname, ".env") })
 
 // Initialize Express app
 const app = express()
@@ -16,10 +17,22 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
 // Connect to MongoDB
+const MONGODB_URI = process.env.MONGODB_URI || process.env.MONGO_URI
+
+if (!MONGODB_URI) {
+  console.error(
+    "Missing MONGODB_URI. Set it in a .env file at project root or backend/.env (e.g., MONGODB_URI=mongodb://127.0.0.1:27017/dental_clinic)",
+  )
+  process.exit(1)
+}
+
 mongoose
-  .connect(process.env.MONGODB_URI)
+  .connect(MONGODB_URI)
   .then(() => console.log("MongoDB connected"))
-  .catch((err) => console.error("MongoDB connection error:", err))
+  .catch((err) => {
+    console.error("MongoDB connection error:", err)
+    process.exit(1)
+  })
 
 // API Routes
 app.use("/api/auth", require("./routes/auth"))
